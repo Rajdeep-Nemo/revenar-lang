@@ -1,0 +1,10 @@
+fn main() -> {
+    i32 arr[..];
+
+    push(arr, 10);
+    push(arr, 20);
+
+    print(arr[1]);
+    print(len(arr));
+
+}
