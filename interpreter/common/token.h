@@ -1,3 +1,6 @@
+//
+//Copyright (c) 2026 Rajdeep Nemo and Sujay Paul
+//
 #ifndef TOKEN_H
 #define TOKEN_H
 //Enum to hold all the token types
@@ -11,7 +14,7 @@ typedef enum
     //3. Keywords
     TOKEN_IF, TOKEN_ELSE, TOKEN_DO, TOKEN_WHILE, TOKEN_FOR, TOKEN_LOOP,
     TOKEN_BREAK, TOKEN_CONTINUE, TOKEN_RETURN, TOKEN_FN,
-    TOKEN_CONST, TOKEN_MATCH,
+    TOKEN_CONST, TOKEN_MUT, TOKEN_MATCH,
     TOKEN_TRUE, TOKEN_FALSE,
     //4. Type keywords
     TOKEN_I8, TOKEN_I16, TOKEN_I32, TOKEN_I64,

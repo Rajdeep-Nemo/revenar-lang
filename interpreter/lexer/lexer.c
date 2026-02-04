@@ -1,12 +1,12 @@
 //
-//Copyright (c) 2026 RAJDEEP NEMO and SUJAY PAUL
+//Copyright (c) 2026 Rajdeep Nemo and Sujay Paul
 //
+#include "lexer.h"
 #include "token.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-
 //struct to iterate through the source code
 typedef struct
 {
@@ -165,6 +165,18 @@ bool match(const char expected)
     scanner.current++;
     return true;
 }
+//Helper function to check if it is a number literal
+bool isDigit(const char c)
+{
+    return c >= '0' && c <= '9';
+}
+//Helper function to check if it is a number literal
+bool isAlpha(const char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+               c == '_';
+}
 //Function to evaluate tokens
 Token scanToken(void)
 {
@@ -184,7 +196,7 @@ Token scanToken(void)
     case '!':
         return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
-        return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);\
+        return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '-':
             return createToken(match('>') ? TOKEN_ARROW : TOKEN_MINUS);
         //Returns when an unexpected character is found
