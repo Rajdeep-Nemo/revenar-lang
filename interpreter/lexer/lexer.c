@@ -1,3 +1,6 @@
+//
+//Copyright (c) 2026 RAJDEEP NEMO and SUJAY PAUL
+//
 #include "token.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -175,12 +178,18 @@ Token scanToken(void)
         //Single character symbols
     case ';':
         return createToken(TOKEN_SEMICOLON);
+    case ',':
+        return createToken(TOKEN_COMMA);
         //One or Two character operators
     case '!':
         return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
-        return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);\
+    case '-':
+            return createToken(match('>') ? TOKEN_ARROW : TOKEN_MINUS);
         //Returns when an unexpected character is found
+        //Operator
+
     default:
         return errorToken("Unexpected character.");
     }
