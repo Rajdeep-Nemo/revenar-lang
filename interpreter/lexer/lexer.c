@@ -177,8 +177,23 @@ bool isAlpha(const char c)
            (c >= 'A' && c <= 'Z') ||
                c == '_';
 }
-//Helper function to check if it is a string literal inside double quotes
-static Token isString(void)
+//Helper function to check if it is a character literal (Inside single quotes)
+static Token isCharLiteral(void)
+{
+    while (peek() != '\'' && !isAtEnd())
+    {
+        advance();
+    }
+    if (isAtEnd())
+    {
+        return errorToken("Unterminated character literal");
+    }
+    //Consume the closing quote
+    advance();
+    return createToken(TOKEN_CHAR_LITERAL);
+}
+//Helper function to check if it is a string literal (Inside double quotes)
+static Token isStringLiteral(void)
 {
     while (peek() != '"' && !isAtEnd())
     {
@@ -223,11 +238,13 @@ Token scanToken(void)
         //Operator
 
     //⚠️⚠️⚠️ DO NOT TOUCH LINES BELOW
+    case '\'':
+        return isCharLiteral();
     case '"':
-        return isString();
+        return isStringLiteral();
     default:
-        if (isDigit(c)) return number();
-        if (isAlpha(c)) return identifier();
+        //if (isDigit(c)) return number();
+        //if (isAlpha(c)) return identifier();
         return errorToken("Unexpected character.");
     }
 }
