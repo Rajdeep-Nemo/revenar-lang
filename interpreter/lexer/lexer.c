@@ -212,6 +212,108 @@ static Token isStringLiteral(void)
     advance();
     return createToken(TOKEN_STRING_LITERAL);
 }
+//Helper function to check if it is a number literal (Integer literal of float literal)
+static Token isNumberLiteral(void)
+{
+    //Flag to check if a integer or float
+    bool isFloat = false;
+    //Consume digits
+    while (isDigit(peek()))
+    {
+        advance();
+    }
+    //If a dot is found and the next character is also a digit it is considered a float
+    if (peek() == '.' && isDigit(peekNext()))
+    {
+        isFloat = true;
+        advance();
+        while (isDigit(peek()))
+        {
+            advance();
+        }
+    }
+    //Create a token based on flag
+    return createToken(isFloat ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL);
+}
+//Helper to check keyword
+static TokenType checkKeyword(const int start ,const int length , const char* rest ,const TokenType type)
+{
+    if (scanner.current - scanner.start == start + length && memcmp(scanner.start + start , rest , length) == 0)
+    {
+        return type;
+    }
+    return TOKEN_IDENTIFIER;
+}
+//Function to check the identifier type
+static TokenType identifierType(void)
+{
+    switch (scanner.start[0])
+    {
+        //Check break and bool keyword
+    case 'b':
+        if (scanner.current > scanner.start - 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'o': return checkKeyword(2 , 2 , "ol" , TOKEN_BOOL);
+            case 'r': return checkKeyword(2 , 3 , "eak" , TOKEN_BREAK);
+            }
+        }
+        break;
+        //Check char , const and continue keyword
+    case 'c':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'h': return checkKeyword(2 , 2 , "ar" , TOKEN_CHAR);
+            case 'o':
+                if (scanner.current - scanner.start > 2 && scanner.start[2] == 'n')
+                {
+                    if (scanner.current - scanner.start > 3)
+                    {
+                        switch (scanner.start[3])
+                        {
+                        case 's': return checkKeyword(4 , 1 , "t" , TOKEN_CONST);
+                        case 't': return checkKeyword(4 , 4 , "inue" , TOKEN_CONTINUE);
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        break;
+        //Check do
+    case 'd': return checkKeyword(1 , 1 , "o" , TOKEN_DO);
+        //Check else
+    case 'e': return checkKeyword(1 , 3 , "lse" , TOKEN_ELSE);
+        //Check false, fn, for, f32, and f64
+    case 'f':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'a': return checkKeyword(2 , 3 , "lse" , TOKEN_FALSE);
+            case 'n': return checkKeyword(2 , 0 , "" , TOKEN_FN);
+            case 'o': return checkKeyword(2 , 1 , "r" , TOKEN_FOR);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_F32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_F64);
+            }
+        }
+        break;
+
+    }
+    return TOKEN_IDENTIFIER;
+}
+//Helper function to check if it is an identifier (checks keywords as well)
+static Token isIdentifier(void)
+{
+    while (isAlpha(peek()) || isDigit(peek()))
+    {
+        advance();
+    }
+    return createToken();
+}
 //Function to evaluate tokens
 Token scanToken(void)
 {
@@ -243,8 +345,8 @@ Token scanToken(void)
     case '"':
         return isStringLiteral();
     default:
-        //if (isDigit(c)) return number();
-        //if (isAlpha(c)) return identifier();
+        if (isDigit(c)) return isNumberLiteral();
+        if (isAlpha(c)) return isIdentifier();
         return errorToken("Unexpected character.");
     }
 }
