@@ -222,20 +222,36 @@ Token scanToken(void)
 
     const char c = advance();
     switch (c) {
-        //Single character symbols
-    case ';':
-        return createToken(TOKEN_SEMICOLON);
-    case ',':
-        return createToken(TOKEN_COMMA);
-        //One or Two character operators
-    case '!':
-        return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
-    case '=':
-        return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
-    case '-':
-            return createToken(match('>') ? TOKEN_ARROW : TOKEN_MINUS);
-        //Returns when an unexpected character is found
-        //Operator
+        // Single-character delimiters
+        case '(': return createToken(TOKEN_LEFT_PAREN);
+        case ')': return createToken(TOKEN_RIGHT_PAREN);
+        case '{': return createToken(TOKEN_LEFT_BRACE);
+        case '}': return createToken(TOKEN_RIGHT_BRACE);
+        case '[': return createToken(TOKEN_LEFT_BRACKET);
+        case ']': return createToken(TOKEN_RIGHT_BRACKET);
+        case ',': return createToken(TOKEN_COMMA);
+        case ':': return createToken(TOKEN_COLON);
+        case ';': return createToken(TOKEN_SEMICOLON);
+        case '.': return createToken(match('.') ? TOKEN_DOT_DOT : TOKEN_DOT);
+        // Arithmetic & Assignment Operators
+        case '+': return createToken(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
+        case '*': return createToken(match('=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
+        case '/': return createToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
+        case '%': return createToken(match('=') ? TOKEN_PERCENTAGE_EQUAL : TOKEN_PERCENTAGE);
+        // Minus, Arrow, and Minus-Equal
+        case '-': return createToken(match('>') ? TOKEN_ARROW : match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
+        // Comparison & Assignment
+        case '=': return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        case '!': return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+        //Less than, Less than equal, Left shift
+        case '<': return createToken(match('<') ? TOKEN_LEFT_SHIFT : (match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS));
+        //Greater than, Greater equal, Right shift
+        case '>': return createToken(match('>') ? TOKEN_RIGHT_SHIFT : (match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER));
+        case '&': return createToken(match('&') ? TOKEN_AND : TOKEN_BIT_AND);
+        case '|': return createToken(match('|') ? TOKEN_OR : TOKEN_BIT_OR);
+        case '^': return createToken(TOKEN_BIT_XOR);
+        case '~': return createToken(TOKEN_BIT_NOT);
+    //Returns when an unexpected character is found
 
     //⚠️⚠️⚠️ DO NOT TOUCH LINES BELOW
     case '\'':
