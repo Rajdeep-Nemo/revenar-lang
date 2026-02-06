@@ -31,6 +31,8 @@ bool match(char expected);
 bool isDigit(char c);
 //Helper function to check if it is a number literal
 bool isAlpha(char c);
+//Helper to check keyword
+TokenType checkKeyword(int start ,int length , const char* rest ,TokenType type);
 //Function to evaluate tokens
 Token scanToken(void);
 //Function to manage the process

@@ -236,7 +236,7 @@ static Token isNumberLiteral(void)
     return createToken(isFloat ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL);
 }
 //Helper to check keyword
-static TokenType checkKeyword(const int start ,const int length , const char* rest ,const TokenType type)
+TokenType checkKeyword(const int start ,const int length , const char* rest ,const TokenType type)
 {
     if (scanner.current - scanner.start == start + length && memcmp(scanner.start + start , rest , length) == 0)
     {
@@ -257,6 +257,7 @@ static TokenType identifierType(void)
             {
             case 'o': return checkKeyword(2 , 2 , "ol" , TOKEN_BOOL);
             case 'r': return checkKeyword(2 , 3 , "eak" , TOKEN_BREAK);
+            default: ;
             }
         }
         break;
@@ -276,10 +277,12 @@ static TokenType identifierType(void)
                         {
                         case 's': return checkKeyword(4 , 1 , "t" , TOKEN_CONST);
                         case 't': return checkKeyword(4 , 4 , "inue" , TOKEN_CONTINUE);
+                        default: ;
                         }
                     }
                 }
                 break;
+            default: ;
             }
         }
         break;
@@ -298,10 +301,46 @@ static TokenType identifierType(void)
             case 'o': return checkKeyword(2 , 1 , "r" , TOKEN_FOR);
             case '3': return checkKeyword(2 , 1 , "2" , TOKEN_F32);
             case '6': return checkKeyword(2 , 1 , "4" , TOKEN_F64);
+            default: ;
             }
         }
         break;
+        //Check if, in, i8, i16, i32, i64
+    case 'i':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'f': return checkKeyword(2 , 0 , "" , TOKEN_IF);
+            case 'n': return checkKeyword(2 , 0 , "" , TOKEN_IN);
+            case '8': return checkKeyword(2 , 0 , "" , TOKEN_I8);
+            case '1': return checkKeyword(2 , 1 , "6" , TOKEN_I16);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_I32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_I64);
+            default: ;
+            }
+        }
+        break;
+        //Check loop
+    case 'l': return checkKeyword(1 , 3 , "oop" , TOKEN_LOOP);
+        //Check match and mut
+    case 'm':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'a': return checkKeyword(2 , 3 , "tch" , TOKEN_MATCH);
+            case 'u': return checkKeyword(2 , 1 , "t" , TOKEN_MUT);
+            default: ;
+            }
+        }
+        break;
+        //Check null
+    case 'n': return checkKeyword(1 , 3 , "ull" , TOKEN_NULL);
+        //Check return
+    case 'r': return checkKeyword(1 , 5 , "eturn" , TOKEN_RETURN);
 
+    default: ;
     }
     return TOKEN_IDENTIFIER;
 }
