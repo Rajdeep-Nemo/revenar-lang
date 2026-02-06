@@ -1,0 +1,7 @@
+//For boolean datatype
+//syntax of declaration-> datatype variable_name;
+bool isCondition;
+//syntax of initialization-> mute variable_name = 0/1;
+mute isCondition = 1;
+//syntax for declaration + initialization-> datatype variable_name = value;
+bool isCondition = 1;
