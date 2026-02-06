@@ -215,7 +215,7 @@ static Token isStringLiteral(void)
 //Helper function to check if it is a number literal (Integer literal of float literal)
 static Token isNumberLiteral(void)
 {
-    //Flag to check if a integer or float
+    //Flag to check if an integer or float
     bool isFloat = false;
     //Consume digits
     while (isDigit(peek()))
@@ -339,6 +339,28 @@ static TokenType identifierType(void)
     case 'n': return checkKeyword(1 , 3 , "ull" , TOKEN_NULL);
         //Check return
     case 'r': return checkKeyword(1 , 5 , "eturn" , TOKEN_RETURN);
+        //Check string
+    case 's': return checkKeyword(1 , 5 , "tring" , TOKEN_STRING);
+        //Check true
+    case 't': return checkKeyword(1 , 3 , "rue" , TOKEN_TRUE);
+        //Check u8, u16, u32, u64
+    case 'u':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case '8': return checkKeyword(2 , 0 , "" , TOKEN_U8);
+            case '1': return checkKeyword(2 , 1 , "6" , TOKEN_U16);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_U32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_U64);
+            default: ;
+            }
+        }
+        break;
+        //Check void
+    case 'v': return checkKeyword(1 , 3 , "oid" , TOKEN_VOID);
+        //Check while
+    case 'w': return checkKeyword(1 , 4 , "hile" , TOKEN_WHILE);
 
     default: ;
     }
@@ -351,7 +373,7 @@ static Token isIdentifier(void)
     {
         advance();
     }
-    return createToken();
+    return createToken(identifierType());
 }
 //Function to evaluate tokens
 Token scanToken(void)
