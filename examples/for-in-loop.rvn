@@ -1,0 +1,8 @@
+//For conditional statement
+
+//The for-in loop only for array traversing
+//Syntax for 'for-in-loop'-> for(variable_name in array_name){ // Code to be executed }
+i32 marks[3] = {98, 97, 95};
+for(m in marks){
+    printf("{}\n",m);
+}
