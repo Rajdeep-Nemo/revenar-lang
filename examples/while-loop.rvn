@@ -1,0 +1,8 @@
+//For conditional statement
+
+//Syntax for 'while-loop'-> while (condition) { // Code to be executed }
+i32 i = 1;
+for(i <= 10){
+    printf("{}\n",i);
+    mute i += 1;
+}
