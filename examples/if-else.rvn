@@ -1,12 +1,12 @@
 //For conditional statement
 
-//Syntax for if statement-> if(condition) { rest of code }
+//Syntax for if statement-> if(condition) { //Code to be executed }
 if(10 < 20) { print("20 is greater than 10"); }
 
-//Syntax for else statement-> else if(condition) { rest of code }
+//Syntax for else statement-> else if(condition) { //Code to be executed }
 else if(20 == 10) { print("20 and 10 is equal"); }
 
-//Syntax for else statement-> else { rest of code }
+//Syntax for else statement-> else { //Code to be executed }
 else { print("20 is less than 10"); }
 
 //Full code
