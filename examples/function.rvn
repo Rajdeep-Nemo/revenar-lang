@@ -1,0 +1,19 @@
+//For function
+
+//Syntax for function with function parameter->
+//fn function_name(function_parameter, function_parameter) -> return_datatype {
+    //Code to be executed
+//}
+
+fn add(i32 x, i32 y) -> i32{
+    return x+y ;
+}
+
+//Syntax for function without function parameter->
+//fn function_name() -> return_datatype {
+    //Code to be executed
+//}
+
+fn display() -> void{
+    print("hello, world!);
+}
