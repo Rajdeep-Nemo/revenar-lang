@@ -7,7 +7,7 @@
 typedef enum
 {
     //1. Special or Control
-    TOKEN_ERROR, TOKEN_EOF,
+    TOKEN_EOF, TOKEN_ERROR,
     //2. Identifiers & Literals
     TOKEN_IDENTIFIER, TOKEN_INT_LITERAL, TOKEN_FLOAT_LITERAL,
     TOKEN_STRING_LITERAL, TOKEN_CHAR_LITERAL,
