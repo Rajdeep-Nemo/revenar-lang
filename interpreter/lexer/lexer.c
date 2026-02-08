@@ -73,7 +73,10 @@ void skipWhitespace(void)
         case '/':
             if (peekNext() == '/')
             {
-                while (!isAtEnd() && *scanner.current != '\n')
+                //Consumes the two '/' before entering loop
+                advance();
+                advance();
+                while (!isAtEnd() && peek() != '\n')
                 {
                     advance();
                 }
@@ -212,6 +215,169 @@ static Token isStringLiteral(void)
     advance();
     return createToken(TOKEN_STRING_LITERAL);
 }
+//Helper function to check if it is a number literal (Integer literal of float literal)
+static Token isNumberLiteral(void)
+{
+    //Flag to check if an integer or float
+    bool isFloat = false;
+    //Consume digits
+    while (isDigit(peek()))
+    {
+        advance();
+    }
+    //If a dot is found and the next character is also a digit it is considered a float
+    if (peek() == '.' && isDigit(peekNext()))
+    {
+        isFloat = true;
+        advance();
+        while (isDigit(peek()))
+        {
+            advance();
+        }
+    }
+    //Create a token based on flag
+    return createToken(isFloat ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL);
+}
+//Helper to check keyword
+TokenType checkKeyword(const int start ,const int length , const char* rest ,const TokenType type)
+{
+    if (scanner.current - scanner.start == start + length && memcmp(scanner.start + start , rest , length) == 0)
+    {
+        return type;
+    }
+    return TOKEN_IDENTIFIER;
+}
+//Function to check the identifier type
+static TokenType identifierType(void)
+{
+    switch (scanner.start[0])
+    {
+        //Check break and bool keyword
+    case 'b':
+        if (scanner.current > scanner.start - 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'o': return checkKeyword(2 , 2 , "ol" , TOKEN_BOOL);
+            case 'r': return checkKeyword(2 , 3 , "eak" , TOKEN_BREAK);
+            default: ;
+            }
+        }
+        break;
+        //Check char , const and continue keyword
+    case 'c':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'h': return checkKeyword(2 , 2 , "ar" , TOKEN_CHAR);
+            case 'o':
+                if (scanner.current - scanner.start > 2 && scanner.start[2] == 'n')
+                {
+                    if (scanner.current - scanner.start > 3)
+                    {
+                        switch (scanner.start[3])
+                        {
+                        case 's': return checkKeyword(4 , 1 , "t" , TOKEN_CONST);
+                        case 't': return checkKeyword(4 , 4 , "inue" , TOKEN_CONTINUE);
+                        default: ;
+                        }
+                    }
+                }
+                break;
+            default: ;
+            }
+        }
+        break;
+        //Check do
+    case 'd': return checkKeyword(1 , 1 , "o" , TOKEN_DO);
+        //Check else
+    case 'e': return checkKeyword(1 , 3 , "lse" , TOKEN_ELSE);
+        //Check false, fn, for, f32, and f64
+    case 'f':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'a': return checkKeyword(2 , 3 , "lse" , TOKEN_FALSE);
+            case 'n': return checkKeyword(2 , 0 , "" , TOKEN_FN);
+            case 'o': return checkKeyword(2 , 1 , "r" , TOKEN_FOR);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_F32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_F64);
+            default: ;
+            }
+        }
+        break;
+        //Check if, in, i8, i16, i32, i64
+    case 'i':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'f': return checkKeyword(2 , 0 , "" , TOKEN_IF);
+            case 'n': return checkKeyword(2 , 0 , "" , TOKEN_IN);
+            case '8': return checkKeyword(2 , 0 , "" , TOKEN_I8);
+            case '1': return checkKeyword(2 , 1 , "6" , TOKEN_I16);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_I32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_I64);
+            default: ;
+            }
+        }
+        break;
+        //Check loop
+    case 'l': return checkKeyword(1 , 3 , "oop" , TOKEN_LOOP);
+        //Check match and mut
+    case 'm':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case 'a': return checkKeyword(2 , 3 , "tch" , TOKEN_MATCH);
+            case 'u': return checkKeyword(2 , 1 , "t" , TOKEN_MUT);
+            default: ;
+            }
+        }
+        break;
+        //Check null
+    case 'n': return checkKeyword(1 , 3 , "ull" , TOKEN_NULL);
+        //Check return
+    case 'r': return checkKeyword(1 , 5 , "eturn" , TOKEN_RETURN);
+        //Check string
+    case 's': return checkKeyword(1 , 5 , "tring" , TOKEN_STRING);
+        //Check true
+    case 't': return checkKeyword(1 , 3 , "rue" , TOKEN_TRUE);
+        //Check u8, u16, u32, u64
+    case 'u':
+        if (scanner.current - scanner.start > 1)
+        {
+            switch (scanner.start[1])
+            {
+            case '8': return checkKeyword(2 , 0 , "" , TOKEN_U8);
+            case '1': return checkKeyword(2 , 1 , "6" , TOKEN_U16);
+            case '3': return checkKeyword(2 , 1 , "2" , TOKEN_U32);
+            case '6': return checkKeyword(2 , 1 , "4" , TOKEN_U64);
+            default: ;
+            }
+        }
+        break;
+        //Check void
+    case 'v': return checkKeyword(1 , 3 , "oid" , TOKEN_VOID);
+        //Check while
+    case 'w': return checkKeyword(1 , 4 , "hile" , TOKEN_WHILE);
+
+    default: ;
+    }
+    return TOKEN_IDENTIFIER;
+}
+//Helper function to check if it is an identifier (checks keywords as well)
+static Token isIdentifier(void)
+{
+    while (isAlpha(peek()) || isDigit(peek()))
+    {
+        advance();
+    }
+    return createToken(identifierType());
+}
 //Function to evaluate tokens
 Token scanToken(void)
 {
@@ -223,44 +389,42 @@ Token scanToken(void)
     const char c = advance();
     switch (c) {
         // Single-character delimiters
-        case '(': return createToken(TOKEN_LEFT_PAREN);
-        case ')': return createToken(TOKEN_RIGHT_PAREN);
-        case '{': return createToken(TOKEN_LEFT_BRACE);
-        case '}': return createToken(TOKEN_RIGHT_BRACE);
-        case '[': return createToken(TOKEN_LEFT_BRACKET);
-        case ']': return createToken(TOKEN_RIGHT_BRACKET);
-        case ',': return createToken(TOKEN_COMMA);
-        case ':': return createToken(TOKEN_COLON);
-        case ';': return createToken(TOKEN_SEMICOLON);
-        case '.': return createToken(match('.') ? TOKEN_DOT_DOT : TOKEN_DOT);
+    case '(': return createToken(TOKEN_LEFT_PAREN);
+    case ')': return createToken(TOKEN_RIGHT_PAREN);
+    case '{': return createToken(TOKEN_LEFT_BRACE);
+    case '}': return createToken(TOKEN_RIGHT_BRACE);
+    case '[': return createToken(TOKEN_LEFT_BRACKET);
+    case ']': return createToken(TOKEN_RIGHT_BRACKET);
+    case ',': return createToken(TOKEN_COMMA);
+    case ':': return createToken(TOKEN_COLON);
+    case ';': return createToken(TOKEN_SEMICOLON);
+    case '.': return createToken(match('.') ? TOKEN_DOT_DOT : TOKEN_DOT);
         // Arithmetic & Assignment Operators
-        case '+': return createToken(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
-        case '*': return createToken(match('=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
-        case '/': return createToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
-        case '%': return createToken(match('=') ? TOKEN_PERCENTAGE_EQUAL : TOKEN_PERCENTAGE);
+    case '+': return createToken(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
+    case '*': return createToken(match('=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
+    case '/': return createToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
+    case '%': return createToken(match('=') ? TOKEN_PERCENT_EQUAL : TOKEN_PERCENT);
         // Minus, Arrow, and Minus-Equal
-        case '-': return createToken(match('>') ? TOKEN_ARROW : match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
+    case '-': return createToken(match('>') ? TOKEN_ARROW : match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
         // Comparison & Assignment
-        case '=': return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
-        case '!': return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+    case '=': return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+    case '!': return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         //Less than, Less than equal, Left shift
-        case '<': return createToken(match('<') ? TOKEN_LEFT_SHIFT : (match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS));
+    case '<': return createToken(match('<') ? TOKEN_LEFT_SHIFT : (match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS));
         //Greater than, Greater equal, Right shift
-        case '>': return createToken(match('>') ? TOKEN_RIGHT_SHIFT : (match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER));
-        case '&': return createToken(match('&') ? TOKEN_AND : TOKEN_BIT_AND);
-        case '|': return createToken(match('|') ? TOKEN_OR : TOKEN_BIT_OR);
-        case '^': return createToken(TOKEN_BIT_XOR);
-        case '~': return createToken(TOKEN_BIT_NOT);
-    //Returns when an unexpected character is found
+    case '>': return createToken(match('>') ? TOKEN_RIGHT_SHIFT : (match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER));
+    case '&': return createToken(match('&') ? TOKEN_AND : TOKEN_BIT_AND);
+    case '|': return createToken(match('|') ? TOKEN_OR : TOKEN_BIT_OR);
+    case '^': return createToken(TOKEN_BIT_XOR);
+    case '~': return createToken(TOKEN_BIT_NOT);
 
-    //⚠️⚠️⚠️ DO NOT TOUCH LINES BELOW
     case '\'':
         return isCharLiteral();
     case '"':
         return isStringLiteral();
     default:
-        //if (isDigit(c)) return number();
-        //if (isAlpha(c)) return identifier();
+        if (isDigit(c)) return isNumberLiteral();
+        if (isAlpha(c)) return isIdentifier();
         return errorToken("Unexpected character.");
     }
 }
@@ -271,19 +435,6 @@ void runFile(const char* path)
     const char* source = readFile(path);
     //Initialize the scanner with the source
     initScanner(source);
-    //The lexing loop
-    while (true)
-    {
-        const Token token = scanToken();
-        //debug test print statement
-        printf("%4d | Type: %2d | '%.*s'\n",
-               token.line, token.token, token.length, token.start);
-
-        if (token.token == TOKEN_EOF)
-        {
-            break;
-        }
-    }
     free((void*)source);
 }
 
