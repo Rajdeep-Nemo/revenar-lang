@@ -18,7 +18,7 @@ The project is organized into discrete modules, each handling a specific stage o
 revenar-lang/
 ├── CMakeLists.txt           # Master build configuration
 ├── interpreter/             # Core implementation
-│   ├── main.c               # Entry point (CLI/REPL)
+│   ├── main.c               # Entry point
 │   ├── common/              # Shared resources (Token definitions, Memory utils)
 │   ├── lexer/               # Lexical Analysis (Source Code -> Tokens)
 │   ├── parser/              # Semantic Analysis (Tokens -> AST)

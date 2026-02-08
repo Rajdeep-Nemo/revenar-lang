@@ -1,0 +1,53 @@
+//
+//Copyright (c) 2026 Rajdeep Nemo and Sujay Paul
+//
+#ifndef TOKEN_H
+#define TOKEN_H
+//Enum to hold all the token types
+typedef enum
+{
+    //1. Special or Control
+    TOKEN_EOF, TOKEN_ERROR,
+    //2. Identifiers & Literals
+    TOKEN_IDENTIFIER, TOKEN_INT_LITERAL, TOKEN_FLOAT_LITERAL,
+    TOKEN_STRING_LITERAL, TOKEN_CHAR_LITERAL,
+    //3. Keywords
+    TOKEN_IF, TOKEN_ELSE, TOKEN_DO, TOKEN_WHILE, TOKEN_FOR, TOKEN_LOOP, TOKEN_IN,
+    TOKEN_BREAK, TOKEN_CONTINUE, TOKEN_RETURN, TOKEN_FN,
+    TOKEN_CONST, TOKEN_MUT, TOKEN_MATCH,
+    TOKEN_TRUE, TOKEN_FALSE,
+    //4. Type keywords
+    TOKEN_I8, TOKEN_I16, TOKEN_I32, TOKEN_I64,
+    TOKEN_U8, TOKEN_U16, TOKEN_U32, TOKEN_U64,
+    TOKEN_F32, TOKEN_F64,
+    TOKEN_CHAR, TOKEN_STRING,
+    TOKEN_BOOL, TOKEN_VOID, TOKEN_NULL,
+    //5. Operators – Arithmetic
+    TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_PERCENT,
+    //6. Operators – Assignment
+    TOKEN_EQUAL, TOKEN_PLUS_EQUAL, TOKEN_MINUS_EQUAL, TOKEN_STAR_EQUAL, TOKEN_SLASH_EQUAL, TOKEN_PERCENT_EQUAL,
+    //7. Operators – Comparison
+    TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS,
+    TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL,
+    //8. Operators – Logical / Bitwise
+    TOKEN_AND, TOKEN_OR, TOKEN_BANG,
+    TOKEN_BIT_AND, TOKEN_BIT_OR, TOKEN_BIT_XOR,
+    TOKEN_BIT_NOT, TOKEN_LEFT_SHIFT, TOKEN_RIGHT_SHIFT,
+    //9. Delimiters / Punctuation
+    TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
+    TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
+    TOKEN_LEFT_BRACKET, TOKEN_RIGHT_BRACKET,
+    TOKEN_COMMA, TOKEN_DOT, TOKEN_SEMICOLON,
+    TOKEN_COLON, TOKEN_ARROW, TOKEN_DOT_DOT
+
+} TokenType;
+//Struct to handle the token
+typedef struct
+{
+    TokenType token;
+    const char* start;
+    int length;
+    int line;
+} Token;
+
+#endif //TOKEN_H
