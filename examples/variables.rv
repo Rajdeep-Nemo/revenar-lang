@@ -1,7 +1,0 @@
-fn main() -> void {
-    const i32 x = 20;
-    i32 y = 10;
-    y = x + y;
-    print(y);
-}
-
