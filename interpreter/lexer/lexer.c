@@ -192,7 +192,7 @@ static Token isCharLiteral(void)
     if (peek() == '\\') {
         advance(); // consume '\'
 
-        char escaped = peek();
+        const char escaped = peek();
         switch (escaped) {
         case '\'': case '"': case '\\': case 'n':
         case '{':  case '}': case 't':  case 'r': case '0':
