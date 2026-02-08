@@ -428,19 +428,6 @@ Token scanToken(void)
         return errorToken("Unexpected character.");
     }
 }
-//Debug function to test lexer (will be removed later) (Called inside 'runFile()' function)
-void testLexer(void) {
-    while (true) {
-        const Token token = scanToken();
-
-        printf("%4d | Type: %2d | '%.*s'\n",
-               token.line, token.token, token.length, token.start);
-
-        if (token.token == TOKEN_EOF) {
-            break;
-        }
-    }
-}
 //Function to manage the process
 void runFile(const char* path)
 {
@@ -448,8 +435,6 @@ void runFile(const char* path)
     const char* source = readFile(path);
     //Initialize the scanner with the source
     initScanner(source);
-    //Test function (will be removed later)
-    testLexer();
     free((void*)source);
 }
 
