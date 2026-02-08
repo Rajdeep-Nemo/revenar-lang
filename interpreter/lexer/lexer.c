@@ -229,10 +229,11 @@ static Token isStringLiteral(void)
         if (peek() == '\\')
         {
             advance();
-
-            const char escaped = peek();
-
-            switch (escaped)
+            if (isAtEnd())
+            {
+                return errorToken("Unterminated string after escape.");
+            }
+            switch (peek())
             {
                 // Specified escape character list
             case '\'':
