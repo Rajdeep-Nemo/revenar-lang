@@ -183,16 +183,36 @@ bool isAlpha(const char c)
 //Helper function to check if it is a character literal (Inside single quotes)
 static Token isCharLiteral(void)
 {
-    while (peek() != '\'' && !isAtEnd())
-    {
+    // 1. Check for empty literal ''
+    if (peek() == '\'') {
+        return errorToken("Empty character literal.");
+    }
+
+    // 2. Handle Escape Sequence
+    if (peek() == '\\') {
+        advance(); // consume '\'
+
+        const char escaped = peek();
+        switch (escaped) {
+        case '\'': case '"': case '\\': case 'n':
+        case '{':  case '}': case 't':  case 'r': case '0':
+            advance(); // consume the valid escaped char
+            break;
+        default:
+            return errorToken("Invalid escape sequence in character literal.");
+        }
+    }
+    // 3. Handle Regular Character
+    else {
         advance();
     }
-    if (isAtEnd())
-    {
-        return errorToken("Unterminated character literal");
+
+    // 4. Ensure it closes correctly immediately after the character
+    if (peek() != '\'') {
+        return errorToken("Character literal must contain exactly one character.");
     }
-    //Consume the closing quote
-    advance();
+
+    advance(); // Consume the closing '
     return createToken(TOKEN_CHAR_LITERAL);
 }
 //Helper function to check if it is a string literal (Inside double quotes)
@@ -200,12 +220,41 @@ static Token isStringLiteral(void)
 {
     while (peek() != '"' && !isAtEnd())
     {
-        //If newline then line count is increased, thus allowing multiline string
+        // If newline then line count is increased, thus allowing multiline string
         if (peek() == '\n')
         {
             scanner.line++;
         }
-        advance();
+        // To check escape sequence
+        if (peek() == '\\')
+        {
+            advance();
+            if (isAtEnd())
+            {
+                return errorToken("Unterminated string after escape.");
+            }
+            switch (peek())
+            {
+                // Specified escape character list
+            case '\'':
+            case '"':
+            case '\\':
+            case 'n':
+            case '{':
+            case '}':
+            case 't':
+            case 'r':
+            case '0':
+                advance(); // Valid escape sequence, consume the char
+                break;
+            default:
+                return errorToken("Invalid escape sequence.");
+            }
+        }
+        else
+        {
+            advance();
+        }
     }
     if (isAtEnd())
     {
