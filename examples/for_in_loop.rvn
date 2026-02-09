@@ -13,7 +13,7 @@ for (i32 x in arr) {
 }
 
 // string traversal
-char str[] = "Hi";
+string str = "Hi";
 for (char c in str) {
     print("{char}\n", c);  // c is read-only
 }
