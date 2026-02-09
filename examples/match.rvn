@@ -1,14 +1,6 @@
-//Match conditional statement
-
-//Syntax for match->
-//match(expression){
-    //(constant1){ //Code to be executed }
-    //(constant2){ //Code to be executed }
-    //(constant3){ //Code to be executed }
-    //(_){ //Code to be executed }
-//}
 i32 day = 4;
-match(day){
+
+match (day) {
     (1) { print("Sunday"); }
     (2) { print("Monday"); }
     (3) { print("Tuesday"); }

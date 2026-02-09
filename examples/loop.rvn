@@ -1,9 +1,12 @@
-//For conditional statement
+// `loop` is infinite by default and can be exit only using a `break`
 
-//Syntax for 'loop'-> loop{ // Code to be executed //break; }
-mute i32 x;
+mut i32 i = 0;
+
 loop {
-    x = 5;
-    break;
+    i = i + 1;
+    print("{i32}" , i);
+
+    if (i == 5) {
+        break;
+    }
 }
-printf("{}", x);
