@@ -1,4 +1,4 @@
-add_library(revenar_evaluator
+add_library(lyka_evaluator
     eval.c
     eval.h
     environment.c
@@ -6,6 +6,6 @@ add_library(revenar_evaluator
 )
 
 # Link to parser (which transitively links lexer and common)
-target_link_libraries(revenar_evaluator PUBLIC revenar_parser)
+target_link_libraries(lyka_evaluator PUBLIC lyka_parser)
 
-target_include_directories(revenar_evaluator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(lyka_evaluator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
-project(revenar-lang C)
+project(lyka-lang C)
 
-# Force C11 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
@@ -12,10 +11,10 @@ endif()
 # Jump into the source folder
 add_subdirectory(interpreter)
 
-# Define a switch called REVENAR_BUILD_TESTS. Default is OFF.
-option(REVENAR_BUILD_TESTS "Build the testing suite" OFF)
+# Define a switch called LYKA_BUILD_TESTS. Default is OFF.
+option(LYKA_BUILD_TESTS "Build the testing suite" OFF)
 
-if(REVENAR_BUILD_TESTS)
+if(LYKA_BUILD_TESTS)
     message(STATUS "Building Tests...")
     enable_testing()
     add_subdirectory(tests)

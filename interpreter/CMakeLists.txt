@@ -5,12 +5,12 @@ add_subdirectory(parser)
 add_subdirectory(evaluator)
 
 # Create the final executable
-add_executable(revenar main.c)
+add_executable(lyka main.c)
 
 # Link the executable to the modules
-target_link_libraries(revenar PRIVATE
-    revenar_evaluator
-    revenar_parser
-    revenar_lexer
-    revenar_common
+target_link_libraries(lyka PRIVATE
+    lyka_evaluator
+    lyka_parser
+    lyka_lexer
+    lyka_common
 )
