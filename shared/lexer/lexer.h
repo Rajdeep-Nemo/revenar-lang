@@ -23,8 +23,8 @@ void skipWhitespace(void);
 Token createToken(TokenType token_type);
 //Function for error reporting
 Token errorToken(const char* message);
-//Function to read input file into a buffer
-char *readFile(const char *path);
+// //Function to read input file into a buffer
+// char *readFile(const char *path);
 //Helper function to evaluate conditional advances - '!=' , '=='
 bool match(char expected);
 //Helper function to check if it is a number literal
@@ -35,7 +35,5 @@ bool isAlpha(char c);
 TokenType checkKeyword(int start ,int length , const char* rest ,TokenType type);
 //Function to evaluate tokens
 Token scanToken(void);
-//Function to manage the process
-void runFile(const char* path);
 
 #endif

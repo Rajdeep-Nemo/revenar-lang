@@ -7,32 +7,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-//struct to iterate through the source code
+// The Scanner struct holds the state of the lexer as it iterates through the source code.
 typedef struct
 {
-    const char* start;
-    const char* current;
-    int line;
+    const char* start;      // Pointer to the start of the current token being scanned.
+    const char* current;    // Pointer to the current character being looked at.
+    int line;               // The current line number, for error reporting.
 } Scanner;
-//Instance created
+// A single global instance of the scanner.
 Scanner scanner;
-//Function to initialize our scanner
+// Initializes the scanner with the source code to be tokenized.
 void initScanner(const char* source)
 {
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
 }
-//Function that checks if we read the complete file or not
+// Checks if the scanner has reached the end of the source code.
 bool isAtEnd(void)
 {
-    if (*scanner.current == '\0')
-    {
-        return true;
-    }
-    return false;
+    return *scanner.current == '\0';
 }
-//Function that moves the pointer 'current' forward
+// Consumes and returns the current character, and advances the scanner.
 char advance(void)
 {
     if (isAtEnd()) return '\0';
@@ -43,16 +39,14 @@ char peek(void)
 {
     return *scanner.current;
 }
-//Function to check the second next character
+// Returns the character after the current one, without consuming it.
+// Useful for lookahead of two characters.
 char peekNext(void)
 {
-    if (*scanner.current == '\0' && scanner.current[1] == '\0')
-    {
-        return '\0';
-    }
+    if (isAtEnd()) return '\0';
     return scanner.current[1];
 }
-//Function to skip whitespace characters
+// Skips over whitespace characters and comments.
 void skipWhitespace(void)
 {
     while (true)
@@ -70,10 +64,12 @@ void skipWhitespace(void)
             scanner.line++;
             advance();
             break;
+        // Also handles single-line comments.
         case '/':
             if (peekNext() == '/')
             {
-                //Consumes the two '/' before entering loop
+                // A comment goes until the end of the line.
+                // Consume the two '/' characters.
                 advance();
                 advance();
                 while (!isAtEnd() && peek() != '\n')
@@ -82,15 +78,17 @@ void skipWhitespace(void)
                 }
             } else
             {
+                // Not a comment, so we're done skipping.
                 return;
             }
             break;
         default:
+            // If it's not whitespace or a comment, we're done.
             return;
         }
     }
 }
-//Function to create a token
+// Creates a new token of the given type.
 Token createToken(const TokenType token_type)
 {
     Token token;
@@ -100,7 +98,7 @@ Token createToken(const TokenType token_type)
     token.line = scanner.line;
     return token;
 }
-//Function for error reporting
+// Creates an error token with a specific message.
 Token errorToken(const char* message)
 {
     Token token;
@@ -110,57 +108,59 @@ Token errorToken(const char* message)
     token.line = scanner.line;
     return token;
 }
-//Function to read input file into a buffer
-char *readFile(const char *path)
+// Reads the entire content of a file into a dynamically allocated string.
+// The caller is responsible for freeing the returned buffer.
+static char *readFile(const char *path)
 {
-    //Opens the file
     FILE* file = fopen(path , "rb");
-    //Checks if the file exists
     if (file == NULL)
     {
         fprintf(stderr , "Could not open file \"%s\"\n",path);
-        exit(74);
+        return NULL;
     }
-    //Check the end of the file to get the size and check for errors
+
+    // Seek to the end of the file to determine its size.
     if (fseek(file, 0L, SEEK_END) != 0) {
         fprintf(stderr, "Could not seek to end of file \"%s\"\n", path);
-        exit(74);
+        fclose(file);
+        return NULL;
     }
-    //fileSize contains the size of the file in long, as error can return -1
+
     const long fileSize = ftell(file);
-    //Checks if fileSize is non-negative, means size is found without any error
     if (fileSize < 0)
     {
         fprintf(stderr, "Could not determine size of file \"%s\"\n", path);
-        exit(74);
+        fclose(file);
+        return NULL;
     }
-    //fileSize(long) is being casted to size_t(unsigned int) for larger buffer
     const size_t uFileSize = (size_t) fileSize;
-    rewind(file);
-    //Allocate memory for the buffer (+1 for the NULL terminator)
+    rewind(file); // Go back to the start of the file.
+
+    // Allocate enough memory for the file content plus a null terminator.
     char* buffer = malloc(uFileSize + 1);
-    //Checks if allocation is successful
     if (buffer == NULL)
     {
         fprintf(stderr , "Not enough memory to read \"%s\"\n",path);
-        exit(74);
+        fclose(file);
+        return NULL;
     }
-    //Read bytes into the buffer
+
+    // Read the file into the buffer.
     const size_t bytesRead = fread(buffer , sizeof(char) , uFileSize , file);
-    //Checks if reading was successful
     if (bytesRead < uFileSize)
     {
         fprintf(stderr , "Could not read file \"%s\"\n",path);
-        exit(74);
+        free(buffer);
+        fclose(file);
+        return NULL;
     }
-    //Null terminate the string
-    buffer[bytesRead] = '\0';
-    //Cleanup and return
+
+    buffer[bytesRead] = '\0'; // Null-terminate the string.
     fclose(file);
     return buffer;
-
 }
-//Helper function to evaluate conditional advances - '!=' , '=='
+// Checks if the current character matches 'expected'. If so, consumes it and returns true.
+// Otherwise, returns false without consuming the character.
 bool match(const char expected)
 {
     if (isAtEnd()) return false;
@@ -168,19 +168,19 @@ bool match(const char expected)
     scanner.current++;
     return true;
 }
-//Helper function to check if it is a digit
+// Helper to check if a character is a digit '0'-'9'.
 bool isDigit(const char c)
 {
     return c >= '0' && c <= '9';
 }
-//Helper function to check if it is an alphabet
+// Helper to check if a character is an alphabet ('a'-'z', 'A'-'Z') or an underscore.
 bool isAlpha(const char c)
 {
     return (c >= 'a' && c <= 'z') ||
            (c >= 'A' && c <= 'Z') ||
                c == '_';
 }
-//Helper function to check if it is a character literal (Inside single quotes)
+// Scans a character literal, which is enclosed in single quotes.
 static Token isCharLiteral(void)
 {
     // 1. Check for empty literal ''
@@ -215,7 +215,8 @@ static Token isCharLiteral(void)
     advance(); // Consume the closing '
     return createToken(TOKEN_CHAR_LITERAL);
 }
-//Helper function to check if it is a string literal (Inside double quotes)
+// Scans a string literal, which is enclosed in double quotes.
+// Supports multi-line strings and escape sequences.
 static Token isStringLiteral(void)
 {
     while (peek() != '"' && !isAtEnd())
@@ -228,7 +229,7 @@ static Token isStringLiteral(void)
         // To check escape sequence
         if (peek() == '\\')
         {
-            advance();
+            advance(); // Consume the backslash
             if (isAtEnd())
             {
                 return errorToken("Unterminated string after escape.");
@@ -264,30 +265,33 @@ static Token isStringLiteral(void)
     advance();
     return createToken(TOKEN_STRING_LITERAL);
 }
-//Helper function to check if it is a number literal (Integer literal of float literal)
+// Scans a number literal, which can be an integer or a floating-point number.
 static Token isNumberLiteral(void)
 {
     //Flag to check if an integer or float
     bool isFloat = false;
-    //Consume digits
+    //Consume digits before the decimal point.
     while (isDigit(peek()))
     {
         advance();
     }
-    //If a dot is found and the next character is also a digit it is considered a float
+    // Look for a fractional part.
     if (peek() == '.' && isDigit(peekNext()))
     {
         isFloat = true;
+        // Consume the "."
         advance();
+        // Consume digits after the decimal point.
         while (isDigit(peek()))
         {
             advance();
         }
     }
-    //Create a token based on flag
+    //Create a token based on whether a decimal point was found.
     return createToken(isFloat ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL);
 }
-//Helper to check keyword
+// A helper for identifierType to check if the scanned identifier matches a specific keyword.
+// This is part of a hand-rolled trie for keyword matching.
 TokenType checkKeyword(const int start ,const int length , const char* rest ,const TokenType type)
 {
     if (scanner.current - scanner.start == start + length && memcmp(scanner.start + start , rest , length) == 0)
@@ -296,14 +300,14 @@ TokenType checkKeyword(const int start ,const int length , const char* rest ,con
     }
     return TOKEN_IDENTIFIER;
 }
-//Function to check the identifier type
+// Determines if an identifier is a keyword. This uses a series of nested switches
+// to create a trie-like structure for efficient keyword matching.
 static TokenType identifierType(void)
 {
     switch (scanner.start[0])
     {
-        //Check break and bool keyword
     case 'b':
-        if (scanner.current > scanner.start - 1)
+        if (scanner.current - scanner.start > 1)
         {
             switch (scanner.start[1])
             {
@@ -313,7 +317,6 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check char , const and continue keyword
     case 'c':
         if (scanner.current - scanner.start > 1)
         {
@@ -338,11 +341,8 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check do
     case 'd': return checkKeyword(1 , 1 , "o" , TOKEN_DO);
-        //Check else
     case 'e': return checkKeyword(1 , 3 , "lse" , TOKEN_ELSE);
-        //Check false, fn, for, f32, and f64
     case 'f':
         if (scanner.current - scanner.start > 1)
         {
@@ -357,7 +357,6 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check if, in, i8, i16, i32, i64
     case 'i':
         if (scanner.current - scanner.start > 1)
         {
@@ -373,9 +372,7 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check loop
     case 'l': return checkKeyword(1 , 3 , "oop" , TOKEN_LOOP);
-        //Check match and mut
     case 'm':
         if (scanner.current - scanner.start > 1)
         {
@@ -387,15 +384,10 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check null
     case 'n': return checkKeyword(1 , 3 , "ull" , TOKEN_NULL);
-        //Check return
     case 'r': return checkKeyword(1 , 5 , "eturn" , TOKEN_RETURN);
-        //Check string
     case 's': return checkKeyword(1 , 5 , "tring" , TOKEN_STRING);
-        //Check true
     case 't': return checkKeyword(1 , 3 , "rue" , TOKEN_TRUE);
-        //Check u8, u16, u32, u64
     case 'u':
         if (scanner.current - scanner.start > 1)
         {
@@ -409,35 +401,39 @@ static TokenType identifierType(void)
             }
         }
         break;
-        //Check void
     case 'v': return checkKeyword(1 , 3 , "oid" , TOKEN_VOID);
-        //Check while
     case 'w': return checkKeyword(1 , 4 , "hile" , TOKEN_WHILE);
 
     default: ;
     }
+    // If it doesn't match any keyword, it's a user-defined identifier.
     return TOKEN_IDENTIFIER;
 }
-//Helper function to check if it is an identifier (checks keywords as well)
+// Scans an identifier or a keyword.
 static Token isIdentifier(void)
 {
+    // Consume all alphanumeric characters (and underscores).
     while (isAlpha(peek()) || isDigit(peek()))
     {
         advance();
     }
+    // Check if the identifier is a reserved keyword.
     return createToken(identifierType());
 }
-//Function to evaluate tokens
+// The main entry point for the scanner. It scans and returns the next token from the source.
 Token scanToken(void)
 {
+    // First, skip any leading whitespace or comments.
     skipWhitespace();
+    // Set the start of the new token to the current position.
     scanner.start = scanner.current;
-    //If the pointer hits '\0' the program stops
+
+    // At the end of the file, return an EOF token.
     if (isAtEnd()) return createToken(TOKEN_EOF);
 
     const char c = advance();
     switch (c) {
-        // Single-character delimiters
+        // Single-character tokens.
     case '(': return createToken(TOKEN_LEFT_PAREN);
     case ')': return createToken(TOKEN_RIGHT_PAREN);
     case '{': return createToken(TOKEN_LEFT_BRACE);
@@ -449,64 +445,83 @@ Token scanToken(void)
     case ';': return createToken(TOKEN_SEMICOLON);
     case '?': return createToken(TOKEN_QUESTION);
     case '.': return createToken(match('.') ? TOKEN_DOT_DOT : TOKEN_DOT);
-        // Arithmetic & Assignment Operators
+        // One or two-character tokens.
     case '+': return createToken(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
     case '*': return createToken(match('=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
     case '/': return createToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
     case '%': return createToken(match('=') ? TOKEN_PERCENT_EQUAL : TOKEN_PERCENT);
-        // Minus, Arrow, and Minus-Equal
     case '-': return createToken(match('>') ? TOKEN_ARROW : match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
-        // Comparison & Assignment
     case '=': return createToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '!': return createToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
-        //Less than, Less than equal, Left shift
     case '<': return createToken(match('<') ? TOKEN_LEFT_SHIFT : (match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS));
-        //Greater than, Greater equal, Right shift
     case '>': return createToken(match('>') ? TOKEN_RIGHT_SHIFT : (match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER));
     case '&': return createToken(match('&') ? TOKEN_AND : TOKEN_BIT_AND);
     case '|': return createToken(match('|') ? TOKEN_OR : TOKEN_BIT_OR);
     case '^': return createToken(TOKEN_BIT_XOR);
     case '~': return createToken(TOKEN_BIT_NOT);
 
+    // Literals
     case '\'':
         return isCharLiteral();
     case '"':
         return isStringLiteral();
     default:
+        // Number literals start with a digit.
         if (isDigit(c)) return isNumberLiteral();
+        // Identifiers start with a letter or underscore.
         if (isAlpha(c)) return isIdentifier();
+        // If none of the above, it's an unexpected character.
         return errorToken("Unexpected character.");
     }
 }
-//Function to manage the process
-void runFile(const char* path)
+// Reads a source file, initializes the scanner, and returns the source buffer.
+// The caller is responsible for freeing the returned buffer.
+static char* runFile(const char* path)
 {
-    //Read the file into source
-    const char* source = readFile(path);
-    //Initialize the scanner with the source
+    char* source = readFile(path);
+    if (source == NULL) {
+        // readFile will have printed an error.
+        return NULL;
+    }
     initScanner(source);
-    free((void*)source);
+    return source;
 }
 
+// Main entry point for the lexer executable.
 int main(const int argc , char *argv[])
 {
-    if (argc == 1)
+    if (argc != 2)
     {
-        printf("No input file provided.\n");
-        printf("Usage: %s <file.lk>\n" , argv[0]);
-        printf("Program terminated.\n");
-    }
-    else if (argc == 2)
-    {
-        runFile(argv[1]);
-    }
-    else if (argc > 2)
-    {
-        printf("Too many arguments.\n");
-        printf("Usage: %s <file.lk>\n" , argv[0]);
-        printf("Program terminated.\n");
+        fprintf(stderr, "Usage: %s <file.lk>\n", argv[0]);
+        return 1;
     }
 
+    char* source = runFile(argv[1]);
+    if (source == NULL) {
+        return 74;
+    }
+
+    int line = -1;
+    for (;;) {
+        Token token = scanToken();
+        if (token.line != line) {
+            printf("%4d ", token.line);
+            line = token.line;
+        } else {
+            printf("   | ");
+        }
+
+        if (token.token == TOKEN_ERROR) {
+            printf("Error: %.*s\n", token.length, token.start);
+        } else {
+            printf("Token %3d '%.*s'\n", token.token, token.length, token.start);
+        }
+
+        if (token.token == TOKEN_EOF) {
+            break;
+        }
+    }
+
+    free(source);
     return 0;
 }
-
