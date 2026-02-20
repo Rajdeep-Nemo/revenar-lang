@@ -493,7 +493,7 @@ int main(const int argc , char *argv[])
     if (argc == 1)
     {
         printf("No input file provided.\n");
-        printf("Usage: %s <file.rv>\n" , argv[0]);
+        printf("Usage: %s <file.lk>\n" , argv[0]);
         printf("Program terminated.\n");
     }
     else if (argc == 2)
@@ -503,7 +503,7 @@ int main(const int argc , char *argv[])
     else if (argc > 2)
     {
         printf("Too many arguments.\n");
-        printf("Usage: %s <file.rv>\n" , argv[0]);
+        printf("Usage: %s <file.lk>\n" , argv[0]);
         printf("Program terminated.\n");
     }
 
